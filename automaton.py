@@ -5,7 +5,7 @@
 # in trivial cases, range has just one value and possible states have just one valiue
 # two possible states give us discerete automata
 # automata should be also allow for fully continuous linear change of its state - this has to be implemented 
-# cellular automaton has n number of appendiges which defines the number of factual interactions with other automata in a given moment
+# cellular automaton has n number of appendages which defines the number of factual interactions with other automata in a given moment
 # interaction with another automaton can change the state of automaton 
 # cellular automaton has responsiveness factor. that defines scale of reaction to interaction. 
 # interaction itself has no property: it merely reflects the state of automaton. 
@@ -15,7 +15,7 @@
 
 '''
 Very important thing to consider now ::::
-you would want to be able to control how they join with their appendiges
+you would want to be able to control how they join with their appendages
 for that reason 
 you can have a property on population class that will set the rules for joining:
 shall it join close neighbours only?
@@ -51,24 +51,25 @@ def give_range(state_range):
 '''
 
 class Automaton():
-    """ Defines Automaton.
+    """ 
+    Defines Automaton.
     Ultimate goal is to have a generator function
     to create a population of automata
-    defined not by number of appendiges of every single automaton
+    defined not by number of appendages of every single automaton
     but by n-hands-shake rule. 
     Eg.: give population of 10000 automata obeying 5-hands-shake rule.
-    Number of appendiges every automaton has will be thus dependent of n-hands-shake rule.
+    Number of appendages every automaton has will be thus dependent of n-hands-shake rule.
     Properties defined here:
     :prop state_range
     state 
     initial_state
     responsiveness
-    appendiges - initially, a list of zeros, as class: Population if initialized, it makes automata join
+    appendages - initially, a list of zeros, as class: Population if initialized, it makes automata join
 
     Methods defined here:
 
     """
-    def __init__(self, state_range=[0,1], initial_state=None, responsiveness=0, appendiges=1):
+    def __init__(self, state_range=[0,1], initial_state=None, responsiveness=1, appendages=1):
         
         #state_range - automaton can be in discrete or linear state. 
         #state_range is expected to be a list or a tuple of two ints for discrete automata 
@@ -94,10 +95,10 @@ class Automaton():
         
         self.responsiveness = responsiveness
 
-        if isinstance(appendiges, int):  
-            self.appendiges = [0 for x in range(0, appendiges)]
+        if isinstance(appendages, int):  
+            self.appendages = [0 for x in range(0, appendages)]
         else:
-            raise ValueError("Appendiges: int expected, got rotten cabbage instead")
+            raise ValueError("Appendages: int expected, got rotten cabbage instead")
     
     def __str__(self):
         return "Automaton number "+str(id(self)) 
@@ -106,25 +107,31 @@ class Automaton():
     def __repr__(self):
         return self.__str__()
 
-    def change_state(self, neighbour.state):
+    def change_state(self, neighbour_state):
         """ Takes state of another automaton
         computes the response 
         by taking responsiveness factor """
-        differance = neighbour.state - self.state
+        
+        print self.state
+        differance = self.state - neighbour_state
+        print differance
         change = differance * self.responsiveness
-            
-        if self.state == neighbour.state:
+        print change
+
+        if self.state == neighbour_state:
             pass # TODO
         # neighbour has higher state, we change up
-        elif self.state < neighbour.state: # 
-            if self.state + change =< max(self.state_range):
+        elif self.state < neighbour_state: # 
+            if self.state + change <= max(self.state_range):
                 self.state += change
+                print self.state
             else:
                 self.state = max(self.state_range)
         # neighbour has lower state, we change down
-        elif self.state > neighbour.state: 
-            if self.state - change => min(self.state_range):
+        elif self.state > neighbour_state: 
+            if self.state - change >= min(self.state_range):
                 self.state -= change
+                print self.state
             else:
                 self.state = min(self.state_range)
 
@@ -140,8 +147,8 @@ class Population():
     you can create empty population and join one by one
     Else, you can let function create_population() do the job
 
-    On init, it przypisuje neighbours to every member
-    by replacing zeros in appendiges
+    On init, it ascribes neighbours to every member
+    by replacing zeros in appendages
     with id of the object
     that defines a link between two automata
     
@@ -156,43 +163,53 @@ class Population():
     
 
 
-    def join_cohort(self, number, state_range, initial_state, responsiveness, appendiges):
+    def join_cohort(self, number, state_range, initial_state, responsiveness, appendages):
         ''' Method for creating a set of n automata with defined properties
         and joining them to the population'''
         if number<1 or not isinstance(number, int):
             raise TypeError("number must be int higher than 0")
-        for x in range(0, n+1):
-            new_automaton = Automaton(state_range, initial_state, responsiveness, appendiges)
+        for x in range(0, number+1):
+            new_automaton = Automaton(state_range, initial_state, responsiveness, appendages)
             self.population.append(new_automaton)
     
 
-
     def create_social_bonds(self, distribution="local"):
-        '''For existing population, we join appendiges'''
+        '''For existing population, we join appendages'''
         if distribution == "local":    
             for automaton in self.population:
-                while 0 in automaton.appendiges: # if it has still some appendages available
-                    for other_automaton in self.population:  #iterate over automata in population, this will be most likely creating local bonds
-                        if not automaton is other_automaton: # skip itself
-                            if 0 in other_automaton.appendiges and not id(automaton) in other_automaton.appendiges: # we don't want to add it twice
-                                first_zero = automaton.appendiges.index(0)# for readability
-                                automaton.appendiges[first_zero] = id(other_automaton)#take first occurence of 0 and replace it with ID
-                                # now we make this relation relfexive
-                                second_first_zero = other_automaton.appendiges[other_automaton.appendiges.index(0)]
-                                other_automaton.appendiges[second_first_zero] = id(automaton)
+                #  if it has still some appendages available
+                for appendage in [a for a in automaton.appendages if a == 0 ]:
+                    if  [anth for anth in self.population if not anth is automaton\
+                                                                        and 0 in anth.appendages\
+                                                                        and not id(automaton) in anth.appendages ]:#
+                        # find the first auttomaton different from itself and having one free appendage
+                        other_automaton = next(aut for aut in self.population\
+                                                                if not aut is automaton\
+                                                                and 0 in aut.appendages\
+                                                                and not id(automaton) in anth.appendages)  #iterate over automata in population, this will be most likely creating local bonds
+                        first_zero = automaton.appendages.index(0)# for readability
+                        automaton.appendages[first_zero] = id(other_automaton)#take first occurence of 0 and replace it with ID
+                        # now we make this relation relfexive
+                        second_first_zero = other_automaton.appendages[other_automaton.appendages.index(0)]
+                        other_automaton.appendages[second_first_zero] = id(automaton)
 
-
+        
         if distribution == "random":
             for automaton in self.population:
-                while 0 in automaton.appendiges:
-                    other_automaton = choice(self.population):
-                    if not automaton is other_automaton: # skip itself
-                        if 0 in other_automaton.appendiges and not id(automaton) in other_automaton.appendiges: # we don't want to add it twice
-                            first_zero = automaton.appendiges.index(0)# for readability
-                            automaton.appendiges[first_zero] = id(other_automaton)#take first occurence of 0 and replace it with ID
-                            # now we make this relation relfexive
-                            second_first_zero = other_automaton.appendiges[other_automaton.appendiges.index(0)]
-                            other_automaton.appendiges[second_first_zero] = id(automaton)
+                for appendage in [a for a in automaton.appendages if a == 0 ]:#
+                    if  [anth for anth in self.population if not anth is automaton\
+                                                                        and 0 in anth.appendages\
+                                                                        and not id(automaton) in anth.appendages ]:#
+                        other_automaton = choice([anth for anth in self.population\
+                                                                if not anth is automaton\
+                                                                and 0 in anth.appendages\
+                                                                and not id(automaton) in anth.appendages])
+                        first_zero = automaton.appendages.index(0)# for readability
+                        automaton.appendages[first_zero] = id(other_automaton)#take first occurence of 0 and replace it with ID
+                        # now we make this relation relfexive
+                        second_first_zero = other_automaton.appendages[other_automaton.appendages.index(0)]
+                        other_automaton.appendages[second_first_zero] = id(automaton)
+        
 
 
     def create_social_bonds_with_hands_shake_rule(self, hands_shake):
@@ -209,4 +226,19 @@ class Population():
         pass
 
 
-    
+    def play_rounds(self, rounds, synchronously=True):
+        ''' 
+        That's the real game
+        '''
+        if not isinstance(rounds, int):
+            raise ValueError("Rounds: int expected")
+        if synchronously:
+            pass
+            #'ere we play synchronous game
+        else:
+            for x in xrange(0, rounds+1):
+                random_automaton = choice(self.population)
+                random_appendage = choice([ap for ap in random_automaton.appendages if ap!=0 ])
+                random_neighbour = next(aut for aut in self.population if id(aut) == random_appendage)
+                random_neighbour.change_state(random_automaton.state)
+

@@ -2,10 +2,10 @@
 another idea for automaton game:
 cells join and form bigger units
 there are rules for how when and where they join
-they have this appendiges
+they have appendiges
 depending on appendiges they join in one or another way
-this can be also used for myu playing my moral game
-social bonds are formed in taht way after allm, are they not?
+this can be also used for playing the moral game
+social bonds are formed in that way after all, are they not?
 
 Look: if automaton does not allow for unbound appendix, every structure created from such automata will be round-shaped.
 
@@ -65,7 +65,7 @@ class StatelessAutomaton(list):
     """
     Actually, it could be an instance of list.
     Because appendages can be just pairs:
-    {type:automaton_id.appendage_number }
+    [type:automaton_id.appendage_number]
 
     so the automaton shall be:
     [[x:46667.1], [x:873888:2], [y:762739:2]]
@@ -74,9 +74,8 @@ class StatelessAutomaton(list):
     Automaton with n-appendages (where n is >0 and <5) of different types.
     Here we do not play the game of influence. No interaction between automata is possible.
     Only possibility is that of forming higher order structures.
-    By default, appendages are of only one - x type.
-    By default, automaton has two appendages.
-    #Later we can play with automata with growing appendages: 
+    By default, automaton has two appendages of only one - x type.
+    # Later we can play with automata with growing appendages: 
     # and automata with changing types of appendages
     """
 
@@ -126,6 +125,18 @@ class Space(list):
     That must mean that automata must move. 
     When automata move, also second class automata move.
     '''
-    
+    def __init__(self, size):
+        if not isinstance(size, (list, tuple)):
+            raise ValueError("Size must be a list of a tuple")
+        if not all(isinstance(x, int) for x in size):
+            raise ValueError("Size must be an int")
+        self.size = size
+        dimension1 = [ None for x in range(0, size[1]+1) ]
+        self.space = [ dimension1 for x in range(0, size[0]+1) ]
+    def __repr__(self):
+        return "Space of "+str(self.space)
+    def  __str__(self):
+        return self.__repr__()
+
 
 
